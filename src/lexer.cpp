@@ -49,7 +49,7 @@ Token Lexer::readToken() {
         // Max length of string double is 325 chars + 1 null char, 2 extra chars for padding and good luck
         std::array<char, 328> numBuffer = {};
         int offset = 0;
-        while (isdigit(c) || c == '.') {
+        while (isdigit(c) || c == '.' || c == 'e' || c == 'E') {
             numBuffer[offset++] = digestChar();
             c = getChar();
         }

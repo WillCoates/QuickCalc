@@ -42,3 +42,23 @@ TEST(lexer, ReadDecimalNumber) {
     ASSERT_NO_THROW(val = std::get<double>(tok.data));
     EXPECT_DOUBLE_EQ(val, 3.14);
 }
+
+TEST(lexer, ReadScientificNotation) {
+    auto stream = std::istringstream("2.998e8");
+    Lexer lexer(stream);
+    Token tok = lexer.read();
+    EXPECT_EQ(tok.type, TokenType::NUMBER);
+    double val;
+    ASSERT_NO_THROW(val = std::get<double>(tok.data));
+    EXPECT_DOUBLE_EQ(val, 2.998e8);
+}
+
+TEST(lexer, ReadUpperScientificNotation) {
+    auto stream = std::istringstream("2.998E8");
+    Lexer lexer(stream);
+    Token tok = lexer.read();
+    EXPECT_EQ(tok.type, TokenType::NUMBER);
+    double val;
+    ASSERT_NO_THROW(val = std::get<double>(tok.data));
+    EXPECT_DOUBLE_EQ(val, 2.998e8);
+}
