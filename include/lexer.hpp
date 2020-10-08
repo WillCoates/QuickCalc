@@ -3,25 +3,24 @@
 #include <istream>
 
 namespace quickcalc {
+    // If modifying check SYMBOLS in lexer.cpp
     enum class Symbol: int {
         ADD = 0,
         SUBTRACT,
         MULTIPLY,
         DIVIDE,
-        EXPONENT,
         AND,
         OR,
         XOR,
         NOT,
+        BRACKET_OPEN,
+        BRACKET_CLOSE,
     };
 
     enum class TokenType: int {
         END_OF_STMT = 0,
-        UNARY_OPERATOR,
-        BINARY_OPERATOR,
+        SYMBOL,
         NUMBER,
-        BRACKET_OPEN,
-        BRACKET_CLOSE,
     };
 
     struct Token {

@@ -111,3 +111,54 @@ TEST(lexer, PeekDoesNotProgress) {
     ASSERT_NO_THROW(val = std::get<double>(tok.data));
     EXPECT_DOUBLE_EQ(val, 12.0);
 }
+
+void testSymbol(const char *input, Symbol expect) {
+    auto stream = std::istringstream(input);
+    Lexer lexer(stream);
+
+    Token tok = lexer.read();
+    EXPECT_EQ(tok.type, TokenType::SYMBOL);
+    Symbol val;
+    ASSERT_NO_THROW(val = std::get<Symbol>(tok.data));
+    EXPECT_EQ(val, expect);
+}
+
+TEST(lexer, SymbolAdd) {
+   testSymbol("+", Symbol::ADD);
+}
+
+TEST(lexer, SymbolSub) {
+   testSymbol("-", Symbol::SUBTRACT);
+}
+
+TEST(lexer, SymbolMul) {
+   testSymbol("*", Symbol::MULTIPLY);
+}
+
+TEST(lexer, SymbolDiv) {
+   testSymbol("/", Symbol::DIVIDE);
+}
+
+TEST(lexer, SymbolAnd) {
+   testSymbol("&", Symbol::AND);
+}
+
+TEST(lexer, SymbolOr) {
+   testSymbol("|", Symbol::OR);
+}
+
+TEST(lexer, SymbolXor) {
+   testSymbol("^", Symbol::XOR);
+}
+
+TEST(lexer, SymbolNot) {
+   testSymbol("~", Symbol::NOT);
+}
+
+TEST(lexer, SymbolOpenBracket) {
+   testSymbol("(", Symbol::BRACKET_OPEN);
+}
+
+TEST(lexer, SymbolCloseBracket) {
+   testSymbol(")", Symbol::BRACKET_CLOSE);
+}

@@ -4,6 +4,24 @@
 #include <stdexcept>
 
 using namespace quickcalc;
+
+namespace {
+    // If modifying check Symbol enum in lexer.hpp
+    const char SYMBOLS[] = {
+        '+',
+        '-',
+        '*',
+        '/',
+        '&',
+        '|',
+        '^',
+        '~',
+        '(',
+        ')',
+    };
+    constexpr int SYMBOL_COUNT = sizeof(SYMBOLS) / sizeof(char);
+}
+
 ILexer::~ILexer() {
 }
 
@@ -70,6 +88,11 @@ Token Lexer::readToken() {
         double value = strtod(numBuffer.data(), nullptr);
         return { TokenType::NUMBER, value };
     } else {
+        for (int i = 0; i < SYMBOL_COUNT; i++) {
+            if (c == SYMBOLS[i]) {
+                return { TokenType::SYMBOL, static_cast<Symbol>(i) };
+            }
+        }
         // TODO: Report a better message
         throw std::runtime_error("Bad character");
     }
