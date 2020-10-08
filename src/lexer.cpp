@@ -1,9 +1,9 @@
 #include "lexer.hpp"
 #include <cctype>
 #include <array>
+#include <stdexcept>
 
 using namespace quickcalc;
-
 ILexer::~ILexer() {
 }
 
@@ -12,8 +12,7 @@ ILexer::~ILexer() {
  * 
  * @param input An input stream to read tokens from. **Must** live as long as the lexer.
  */
-Lexer::Lexer(std::istream &input): _input(input) {
-    _pending = readToken();
+Lexer::Lexer(std::istream &input): _input(input), _ready(false) {
 }
 
 /**
@@ -22,9 +21,12 @@ Lexer::Lexer(std::istream &input): _input(input) {
  * @return Token The token read
  */
 Token Lexer::read() {
-    Token temp = _pending;
-    _pending = readToken();
-    return temp;
+    if (_ready) {
+        _ready = false;
+        return _pending;
+    } else {
+        return readToken();
+    }
 }
 
 /**
@@ -33,16 +35,26 @@ Token Lexer::read() {
  * @return Token The token read
  */
 Token Lexer::peek() {
-    return _pending;
+    if (_ready) {
+        return _pending;
+    } else {
+        _pending = readToken();
+        _ready = true;
+        return _pending;
+    }
 }
 
 /**
- * @brief Reads a token from the stream, internally used by read and ctor
+ * @brief Reads a token from the stream, internally used by read and peek
  * 
  * @return Token 
  */
 Token Lexer::readToken() {
     int c = getChar();
+    while (isspace(c)) {
+        digestChar();
+        c = getChar();
+    }
     if (c == EOF) {
         return {};
     } else if (isdigit(c)) {
@@ -55,6 +67,9 @@ Token Lexer::readToken() {
         }
         double value = strtod(numBuffer.data(), nullptr);
         return { TokenType::NUMBER, value };
+    } else {
+        // TODO: Report a better message
+        throw std::runtime_error("Bad character");
     }
     return {};
 }

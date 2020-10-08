@@ -62,3 +62,20 @@ TEST(lexer, ReadUpperScientificNotation) {
     ASSERT_NO_THROW(val = std::get<double>(tok.data));
     EXPECT_DOUBLE_EQ(val, 2.998e8);
 }
+
+TEST(lexer, IgnoreWhitespace) {
+    auto stream = std::istringstream(" \n\r\t\v\f4");
+    Lexer lexer(stream);
+    Token tok = lexer.read();
+    EXPECT_EQ(tok.type, TokenType::NUMBER);
+    double val;
+    ASSERT_NO_THROW(val = std::get<double>(tok.data));
+    EXPECT_DOUBLE_EQ(val, 4);
+}
+
+TEST(lexer, ThrowOnBadInput) {
+    // Unicode negative acknowledge
+    auto stream = std::istringstream("\u0015");
+    Lexer lexer(stream);
+    EXPECT_THROW(lexer.read(), std::runtime_error);
+}

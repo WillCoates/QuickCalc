@@ -38,6 +38,7 @@ namespace quickcalc {
     class Lexer: public ILexer {
         std::istream &_input;
         Token _pending;
+        bool _ready;
 
     public:
         explicit Lexer(std::istream &input);
