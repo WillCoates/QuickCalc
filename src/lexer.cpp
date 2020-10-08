@@ -51,10 +51,12 @@ Token Lexer::peek() {
  */
 Token Lexer::readToken() {
     int c = getChar();
+    
     while (isspace(c)) {
         digestChar();
         c = getChar();
     }
+
     if (c == EOF) {
         return {};
     } else if (isdigit(c)) {
@@ -71,7 +73,6 @@ Token Lexer::readToken() {
         // TODO: Report a better message
         throw std::runtime_error("Bad character");
     }
-    return {};
 }
 
 int Lexer::getChar() {

@@ -79,3 +79,35 @@ TEST(lexer, ThrowOnBadInput) {
     Lexer lexer(stream);
     EXPECT_THROW(lexer.read(), std::runtime_error);
 }
+
+TEST(lexer, ReadProgresses) {
+    auto stream = std::istringstream("12 34");
+    Lexer lexer(stream);
+
+    Token tok = lexer.read();
+    EXPECT_EQ(tok.type, TokenType::NUMBER);
+    double val;
+    ASSERT_NO_THROW(val = std::get<double>(tok.data));
+    EXPECT_DOUBLE_EQ(val, 12.0);
+
+    tok = lexer.read();
+    EXPECT_EQ(tok.type, TokenType::NUMBER);
+    ASSERT_NO_THROW(val = std::get<double>(tok.data));
+    EXPECT_DOUBLE_EQ(val, 34.0);
+}
+
+TEST(lexer, PeekDoesNotProgress) {
+    auto stream = std::istringstream("12 34");
+    Lexer lexer(stream);
+
+    Token tok = lexer.peek();
+    EXPECT_EQ(tok.type, TokenType::NUMBER);
+    double val;
+    ASSERT_NO_THROW(val = std::get<double>(tok.data));
+    EXPECT_DOUBLE_EQ(val, 12.0);
+
+    tok = lexer.read();
+    EXPECT_EQ(tok.type, TokenType::NUMBER);
+    ASSERT_NO_THROW(val = std::get<double>(tok.data));
+    EXPECT_DOUBLE_EQ(val, 12.0);
+}
