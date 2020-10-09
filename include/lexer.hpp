@@ -1,6 +1,7 @@
 #pragma once
 #include <variant>
 #include <istream>
+#include <string>
 
 namespace quickcalc {
     // If modifying check SYMBOLS in lexer.cpp
@@ -38,6 +39,7 @@ namespace quickcalc {
         std::istream &_input;
         Token _pending;
         bool _ready;
+        int _line, _col;
 
     public:
         explicit Lexer(std::istream &input);
@@ -48,5 +50,6 @@ namespace quickcalc {
         Token readToken();
         int getChar();
         int digestChar();
+        std::string generateError(const std::string &msg, int c);
     };
 }

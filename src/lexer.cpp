@@ -2,6 +2,7 @@
 #include <cctype>
 #include <array>
 #include <stdexcept>
+#include <sstream>
 
 using namespace quickcalc;
 
@@ -30,7 +31,7 @@ ILexer::~ILexer() {
  * 
  * @param input An input stream to read tokens from. **Must** live as long as the lexer.
  */
-Lexer::Lexer(std::istream &input): _input(input), _ready(false) {
+Lexer::Lexer(std::istream &input): _input(input), _ready(false), _line(1), _col(1) {
 }
 
 /**
@@ -53,13 +54,11 @@ Token Lexer::read() {
  * @return Token The token read
  */
 Token Lexer::peek() {
-    if (_ready) {
-        return _pending;
-    } else {
+    if (!_ready) {
         _pending = readToken();
         _ready = true;
-        return _pending;
     }
+    return _pending;
 }
 
 /**
@@ -93,8 +92,7 @@ Token Lexer::readToken() {
                 return { TokenType::SYMBOL, static_cast<Symbol>(i) };
             }
         }
-        // TODO: Report a better message
-        throw std::runtime_error("Bad character");
+        throw std::runtime_error(generateError("Bad character", c));
     }
 }
 
@@ -103,5 +101,19 @@ int Lexer::getChar() {
 }
 
 int Lexer::digestChar() {
-    return _input.get();
+    int c = _input.get();
+    // Keep track of where we are in input
+    if (c == '\n') {
+        _col = 1;
+        _line++;
+    } else if (c != '\r') {
+        _col++;
+    }
+    return c;
+}
+
+std::string Lexer::generateError(const std::string &msg, int c) {
+    std::ostringstream error;
+    error << msg << " '" << static_cast<char>(c & 0xFF) << "' Line " << _line << " Col " << _col;
+    return error.str();
 }
