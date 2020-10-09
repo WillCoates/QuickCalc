@@ -55,3 +55,13 @@ TEST_F(IntegrationTest, FollowsBIDMAS) {
     ast->accept(executor);
     EXPECT_DOUBLE_EQ(executor.lastResult(), 10.5);
 }
+
+TEST_F(IntegrationTest, MultiStatement) {
+    input.str("1+2;3+4");
+    auto ast = parser.parse();
+    ast->accept(executor);
+    EXPECT_DOUBLE_EQ(executor.lastResult(), 3.0);
+    ast = parser.parse();
+    ast->accept(executor);
+    EXPECT_DOUBLE_EQ(executor.lastResult(), 7.0);
+}
