@@ -37,6 +37,7 @@ if(${GTEST_FOUND})
     target_link_libraries(integrationtests PUBLIC libquickcalc GTest::GTest GTest::Main)
 
     gtest_discover_tests(unittests)
+    gtest_discover_tests(integrationtests)
 else()
     message(WARNING "Google Test must be installed in order to execute tests")
 endif()
