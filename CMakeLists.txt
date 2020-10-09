@@ -5,6 +5,7 @@ add_library(libquickcalc STATIC
     src/lexer.cpp include/lexer.hpp
     src/ast.cpp include/ast.hpp
     src/parser.cpp include/parser.hpp
+    src/executor.cpp include/executor.hpp
 )
 
 target_compile_features(libquickcalc PUBLIC cxx_std_17)
@@ -24,6 +25,7 @@ if(${GTEST_FOUND})
     add_executable(unittests
         test/lexer.cpp
         test/parser.cpp
+        test/executor.cpp
     )
     
     target_link_libraries(unittests PUBLIC libquickcalc GTest::GTest GTest::Main)
