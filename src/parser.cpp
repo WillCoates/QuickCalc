@@ -36,7 +36,6 @@ std::unique_ptr<ExprNode> Parser::additive() {
     default:
         throw std::runtime_error(generateError("Expected + or - (or ')' if in brackets)", op));
     case TokenType::END_OF_STMT:
-        _lexer.read();
         return lhs;
     }
 }

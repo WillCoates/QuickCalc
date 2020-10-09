@@ -273,3 +273,19 @@ TEST(parser, ForgotCloseBracketFail) {
     });
     testParserThrows(lexer);
 }
+
+TEST(parse, ParseMultiple) {
+    MockLexer lexer = MockLexer({
+        { 0, 0, TokenType::NUMBER, 1.0 },
+        { 1, 0, TokenType::END_OF_STMT },
+        { 2, 0, TokenType::NUMBER, 2.0 },
+    });
+    std::unique_ptr<StmtNode> expectedA = std::make_unique<ExprStmtNode>(
+        std::make_unique<ConstNode>(1.0)
+    );
+    std::unique_ptr<StmtNode> expectedB = std::make_unique<ExprStmtNode>(
+        std::make_unique<ConstNode>(2.0)
+    );
+    testParser(lexer, expectedA);
+    testParser(lexer, expectedB);
+}

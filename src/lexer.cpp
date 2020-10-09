@@ -87,6 +87,7 @@ Token Lexer::readToken() {
     int startCol = _col, startLine = _line;
 
     if (c == EOF || c == ';') {
+        digestChar();
         return { startCol, startLine };
     } else if (isdigit(c)) {
         // Max length of string double is 325 chars + 1 null char, 2 extra chars for padding and good luck
@@ -119,7 +120,7 @@ int Lexer::digestChar() {
     if (c == '\n') {
         _col = 1;
         _line++;
-    } else if (c != '\r') {
+    } else if (c != '\r' && c != EOF) {
         _col++;
     }
     return c;
