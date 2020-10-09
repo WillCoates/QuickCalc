@@ -250,7 +250,7 @@ TEST(parser, ParseNegationWithBrackets) {
     testParser(lexer, expected);
 }
 
-TEST(parse, SequentalNumberFail) {
+TEST(parser, SequentalNumberFail) {
     MockLexer lexer = MockLexer({
         { 0, 0, TokenType::NUMBER, 1.0 },
         { 1, 0, TokenType::NUMBER, 2.0 },
@@ -258,7 +258,7 @@ TEST(parse, SequentalNumberFail) {
     testParserThrows(lexer);
 }
 
-TEST(parse, RogueClosedBracketFail) {
+TEST(parser, RogueClosedBracketFail) {
     MockLexer lexer = MockLexer({
         { 0, 0, TokenType::NUMBER, 1.0 },
         { 1, 0, TokenType::SYMBOL, Symbol::BRACKET_CLOSE },
@@ -266,7 +266,7 @@ TEST(parse, RogueClosedBracketFail) {
     testParserThrows(lexer);
 }
 
-TEST(parse, ForgotCloseBracketFail) {
+TEST(parser, ForgotCloseBracketFail) {
     MockLexer lexer = MockLexer({
         { 0, 0, TokenType::SYMBOL, Symbol::BRACKET_OPEN },
         { 1, 0, TokenType::NUMBER, 1.0 },
