@@ -75,7 +75,7 @@ Token Lexer::readToken() {
         c = getChar();
     }
 
-    if (c == EOF) {
+    if (c == EOF || c == ';') {
         return {};
     } else if (isdigit(c)) {
         // Max length of string double is 325 chars + 1 null char, 2 extra chars for padding and good luck

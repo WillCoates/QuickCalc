@@ -162,3 +162,12 @@ TEST(lexer, SymbolOpenBracket) {
 TEST(lexer, SymbolCloseBracket) {
    testSymbol(")", Symbol::BRACKET_CLOSE);
 }
+
+TEST(lexer, SemicolonEndsStatement) {
+    auto stream = std::istringstream(";");
+    Lexer lexer(stream);
+    Token tok = lexer.read();
+    EXPECT_EQ(tok.type, TokenType::END_OF_STMT);
+    // Cast to void to disable nodiscard warning
+    ASSERT_NO_THROW(static_cast<void>(std::get<std::monostate>(tok.data)));
+}
