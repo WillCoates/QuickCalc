@@ -8,6 +8,7 @@ namespace quickcalc {
     class Node {
     public:
         virtual void accept(NodeVisitor &visitor) = 0;
+        virtual bool operator==(const Node &other) const = 0;
     };
 
     class StmtNode: public Node {
@@ -27,6 +28,7 @@ namespace quickcalc {
         ExprNode *expression() const;
 
         void accept(NodeVisitor &visitor) override;
+        bool operator==(const Node &other) const override;
     };
 
     class ConstNode: public ExprNode {
@@ -36,6 +38,7 @@ namespace quickcalc {
         double value() const;
 
         void accept(NodeVisitor &visitor) override;
+        bool operator==(const Node &other) const override;
     };
     
     enum class UnaryOperation: int {
@@ -52,6 +55,7 @@ namespace quickcalc {
         ExprNode *value() const;
 
         void accept(NodeVisitor &visitor) override;
+        bool operator==(const Node &other) const override;
     };
 
     enum class BinaryOperation: int {
@@ -74,6 +78,7 @@ namespace quickcalc {
         ExprNode *rhs() const;
 
         void accept(NodeVisitor &visitor) override;
+        bool operator==(const Node &other) const override;
     };
 
     class NodeVisitor {
