@@ -20,7 +20,17 @@ namespace {
         '(',
         ')',
     };
+
     constexpr int SYMBOL_COUNT = sizeof(SYMBOLS) / sizeof(char);
+
+    // If modifying check TokenType enum in lexer.hpp
+    const char *TOKEN_TYPES[] = {
+        "End of statement",
+        "Symbol",
+        "Number",
+    };
+
+    constexpr int TOKEN_TYPE_COUNT = sizeof(TOKEN_TYPES) / sizeof(char);
 }
 
 ILexer::~ILexer() {
@@ -119,4 +129,24 @@ std::string Lexer::generateError(const std::string &msg, int c) {
     std::ostringstream error;
     error << msg << " '" << static_cast<char>(c & 0xFF) << "' Line " << _line << " Col " << _col;
     return error.str();
+}
+
+std::ostream &operator<<(std::ostream &stream, Symbol symbol) {
+    int offset = static_cast<int>(symbol);
+
+    if (offset < 0 || offset >= SYMBOL_COUNT) {
+        return stream << "Bad symbol";
+    }
+
+    return stream << SYMBOLS[offset];
+}
+
+std::ostream &operator<<(std::ostream &stream, TokenType type) {
+    int offset = static_cast<int>(type);
+
+    if (offset < 0 || offset >= TOKEN_TYPE_COUNT) {
+        return stream << "Bad token type";
+    }
+
+    return stream << TOKEN_TYPES[offset];
 }

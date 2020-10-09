@@ -1,6 +1,7 @@
 #pragma once
 #include <variant>
 #include <istream>
+#include <ostream>
 #include <string>
 
 namespace quickcalc {
@@ -18,6 +19,7 @@ namespace quickcalc {
         BRACKET_CLOSE,
     };
 
+    // If modifying check TOKEN_TYPES in lexer.cpp
     enum class TokenType: int {
         END_OF_STMT = 0,
         SYMBOL,
@@ -55,3 +57,6 @@ namespace quickcalc {
         std::string generateError(const std::string &msg, int c);
     };
 }
+
+std::ostream &operator<<(std::ostream &stream, quickcalc::Symbol symbol);
+std::ostream &operator<<(std::ostream &stream, quickcalc::TokenType type);
