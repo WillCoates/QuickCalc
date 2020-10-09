@@ -41,7 +41,7 @@ namespace {
 
 TEST(parser, ParseNumber) {
     MockLexer lexer = MockLexer({
-        { TokenType::NUMBER, 1.0 }
+        { 0, 0, TokenType::NUMBER, 1.0 }
     });
     std::unique_ptr<StmtNode> expected =
         std::make_unique<ExprStmtNode>(
@@ -52,9 +52,9 @@ TEST(parser, ParseNumber) {
 
 TEST(parser, ParseAddition) {
     MockLexer lexer = MockLexer({
-        { TokenType::NUMBER, 1.0 },
-        { TokenType::SYMBOL, Symbol::ADD },
-        { TokenType::NUMBER, 2.0 },
+        { 0, 0, TokenType::NUMBER, 1.0 },
+        { 1, 0, TokenType::SYMBOL, Symbol::ADD },
+        { 2, 0, TokenType::NUMBER, 2.0 },
     });
     std::unique_ptr<StmtNode> expected =
         std::make_unique<ExprStmtNode>(
@@ -69,9 +69,9 @@ TEST(parser, ParseAddition) {
 
 TEST(parser, ParseSubtraction) {
     MockLexer lexer = MockLexer({
-        { TokenType::NUMBER, 1.0 },
-        { TokenType::SYMBOL, Symbol::SUBTRACT },
-        { TokenType::NUMBER, 2.0 },
+        { 0, 0, TokenType::NUMBER, 1.0 },
+        { 1, 0, TokenType::SYMBOL, Symbol::SUBTRACT },
+        { 2, 0, TokenType::NUMBER, 2.0 },
     });
     std::unique_ptr<StmtNode> expected =
         std::make_unique<ExprStmtNode>(
@@ -86,9 +86,9 @@ TEST(parser, ParseSubtraction) {
 
 TEST(parser, ParseMultiplication) {
     MockLexer lexer = MockLexer({
-        { TokenType::NUMBER, 1.0 },
-        { TokenType::SYMBOL, Symbol::MULTIPLY },
-        { TokenType::NUMBER, 2.0 },
+        { 0, 0, TokenType::NUMBER, 1.0 },
+        { 1, 0, TokenType::SYMBOL, Symbol::MULTIPLY },
+        { 2, 0, TokenType::NUMBER, 2.0 },
     });
     std::unique_ptr<StmtNode> expected =
         std::make_unique<ExprStmtNode>(
@@ -103,9 +103,9 @@ TEST(parser, ParseMultiplication) {
 
 TEST(parser, ParseDivision) {
     MockLexer lexer = MockLexer({
-        { TokenType::NUMBER, 1.0 },
-        { TokenType::SYMBOL, Symbol::DIVIDE },
-        { TokenType::NUMBER, 2.0 },
+        { 0, 0, TokenType::NUMBER, 1.0 },
+        { 1, 0, TokenType::SYMBOL, Symbol::DIVIDE },
+        { 2, 0, TokenType::NUMBER, 2.0 },
     });
     std::unique_ptr<StmtNode> expected =
         std::make_unique<ExprStmtNode>(
@@ -120,11 +120,11 @@ TEST(parser, ParseDivision) {
 
 TEST(parser, ParseMultipleAddition) {
     MockLexer lexer = MockLexer({
-        { TokenType::NUMBER, 1.0 },
-        { TokenType::SYMBOL, Symbol::ADD },
-        { TokenType::NUMBER, 2.0 },
-        { TokenType::SYMBOL, Symbol::ADD },
-        { TokenType::NUMBER, 3.0 },
+        { 0, 0, TokenType::NUMBER, 1.0 },
+        { 1, 0, TokenType::SYMBOL, Symbol::ADD },
+        { 2, 0, TokenType::NUMBER, 2.0 },
+        { 3, 0, TokenType::SYMBOL, Symbol::ADD },
+        { 4, 0, TokenType::NUMBER, 3.0 },
     });
     std::unique_ptr<StmtNode> expected =
         std::make_unique<ExprStmtNode>(
@@ -143,11 +143,11 @@ TEST(parser, ParseMultipleAddition) {
 
 TEST(parser, ParseAddMul) {
     MockLexer lexer = MockLexer({
-        { TokenType::NUMBER, 1.0 },
-        { TokenType::SYMBOL, Symbol::ADD },
-        { TokenType::NUMBER, 2.0 },
-        { TokenType::SYMBOL, Symbol::MULTIPLY },
-        { TokenType::NUMBER, 3.0 },
+        { 0, 0, TokenType::NUMBER, 1.0 },
+        { 1, 0, TokenType::SYMBOL, Symbol::ADD },
+        { 2, 0, TokenType::NUMBER, 2.0 },
+        { 3, 0, TokenType::SYMBOL, Symbol::MULTIPLY },
+        { 4, 0, TokenType::NUMBER, 3.0 },
     });
     std::unique_ptr<StmtNode> expected =
         std::make_unique<ExprStmtNode>(
@@ -166,11 +166,11 @@ TEST(parser, ParseAddMul) {
 
 TEST(parser, ParseMulAdd) {
     MockLexer lexer = MockLexer({
-        { TokenType::NUMBER, 1.0 },
-        { TokenType::SYMBOL, Symbol::MULTIPLY },
-        { TokenType::NUMBER, 2.0 },
-        { TokenType::SYMBOL, Symbol::ADD },
-        { TokenType::NUMBER, 3.0 },
+        { 0, 0, TokenType::NUMBER, 1.0 },
+        { 1, 0, TokenType::SYMBOL, Symbol::MULTIPLY },
+        { 2, 0, TokenType::NUMBER, 2.0 },
+        { 3, 0, TokenType::SYMBOL, Symbol::ADD },
+        { 4, 0, TokenType::NUMBER, 3.0 },
     });
     std::unique_ptr<StmtNode> expected =
         std::make_unique<ExprStmtNode>(
@@ -189,13 +189,13 @@ TEST(parser, ParseMulAdd) {
 
 TEST(parser, ParseBrackets) {
     MockLexer lexer = MockLexer({
-        { TokenType::NUMBER, 1.0 },
-        { TokenType::SYMBOL, Symbol::MULTIPLY },
-        { TokenType::SYMBOL, Symbol::BRACKET_OPEN },
-        { TokenType::NUMBER, 2.0 },
-        { TokenType::SYMBOL, Symbol::ADD },
-        { TokenType::NUMBER, 3.0 },
-        { TokenType::SYMBOL, Symbol::BRACKET_CLOSE },
+        { 0, 0, TokenType::NUMBER, 1.0 },
+        { 1, 0, TokenType::SYMBOL, Symbol::MULTIPLY },
+        { 2, 0, TokenType::SYMBOL, Symbol::BRACKET_OPEN },
+        { 3, 0, TokenType::NUMBER, 2.0 },
+        { 4, 0, TokenType::SYMBOL, Symbol::ADD },
+        { 5, 0, TokenType::NUMBER, 3.0 },
+        { 6, 0, TokenType::SYMBOL, Symbol::BRACKET_CLOSE },
     });
     std::unique_ptr<StmtNode> expected =
         std::make_unique<ExprStmtNode>(
@@ -214,8 +214,8 @@ TEST(parser, ParseBrackets) {
 
 TEST(parser, ParseNegation) {
     MockLexer lexer = MockLexer({
-        { TokenType::SYMBOL, Symbol::SUBTRACT },
-        { TokenType::NUMBER, 1.0 },
+        { 0, 0, TokenType::SYMBOL, Symbol::SUBTRACT },
+        { 1, 0, TokenType::NUMBER, 1.0 },
     });
     std::unique_ptr<StmtNode> expected =
         std::make_unique<ExprStmtNode>(
@@ -229,12 +229,12 @@ TEST(parser, ParseNegation) {
 
 TEST(parser, ParseNegationWithBrackets) {
     MockLexer lexer = MockLexer({
-        { TokenType::SYMBOL, Symbol::SUBTRACT },
-        { TokenType::SYMBOL, Symbol::BRACKET_OPEN },
-        { TokenType::NUMBER, 1.0 },
-        { TokenType::SYMBOL, Symbol::ADD },
-        { TokenType::NUMBER, 2.0 },
-        { TokenType::SYMBOL, Symbol::BRACKET_CLOSE },
+        { 0, 0, TokenType::SYMBOL, Symbol::SUBTRACT },
+        { 1, 0, TokenType::SYMBOL, Symbol::BRACKET_OPEN },
+        { 2, 0, TokenType::NUMBER, 1.0 },
+        { 3, 0, TokenType::SYMBOL, Symbol::ADD },
+        { 4, 0, TokenType::NUMBER, 2.0 },
+        { 5, 0, TokenType::SYMBOL, Symbol::BRACKET_CLOSE },
     });
     std::unique_ptr<StmtNode> expected =
         std::make_unique<ExprStmtNode>(
@@ -252,24 +252,24 @@ TEST(parser, ParseNegationWithBrackets) {
 
 TEST(parse, SequentalNumberFail) {
     MockLexer lexer = MockLexer({
-        { TokenType::NUMBER, 1.0 },
-        { TokenType::NUMBER, 2.0 },
+        { 0, 0, TokenType::NUMBER, 1.0 },
+        { 1, 0, TokenType::NUMBER, 2.0 },
     });
     testParserThrows(lexer);
 }
 
 TEST(parse, RogueClosedBracketFail) {
     MockLexer lexer = MockLexer({
-        { TokenType::NUMBER, 1.0 },
-        { TokenType::SYMBOL, Symbol::BRACKET_CLOSE },
+        { 0, 0, TokenType::NUMBER, 1.0 },
+        { 1, 0, TokenType::SYMBOL, Symbol::BRACKET_CLOSE },
     });
     testParserThrows(lexer);
 }
 
 TEST(parse, ForgotCloseBracketFail) {
     MockLexer lexer = MockLexer({
-        { TokenType::SYMBOL, Symbol::BRACKET_OPEN },
-        { TokenType::NUMBER, 1.0 },
+        { 0, 0, TokenType::SYMBOL, Symbol::BRACKET_OPEN },
+        { 1, 0, TokenType::NUMBER, 1.0 },
     });
     testParserThrows(lexer);
 }

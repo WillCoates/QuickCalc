@@ -74,8 +74,10 @@ Token Lexer::readToken() {
         c = getChar();
     }
 
+    int startCol = _col, startLine = _line;
+
     if (c == EOF || c == ';') {
-        return {};
+        return { startCol, startLine };
     } else if (isdigit(c)) {
         // Max length of string double is 325 chars + 1 null char, 2 extra chars for padding and good luck
         std::array<char, 328> numBuffer = {};
@@ -85,11 +87,12 @@ Token Lexer::readToken() {
             c = getChar();
         }
         double value = strtod(numBuffer.data(), nullptr);
-        return { TokenType::NUMBER, value };
+        return { startCol, startLine, TokenType::NUMBER, value };
     } else {
         for (int i = 0; i < SYMBOL_COUNT; i++) {
             if (c == SYMBOLS[i]) {
-                return { TokenType::SYMBOL, static_cast<Symbol>(i) };
+                digestChar();
+                return { startCol, startLine, TokenType::SYMBOL, static_cast<Symbol>(i) };
             }
         }
         throw std::runtime_error(generateError("Bad character", c));

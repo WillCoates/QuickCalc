@@ -25,6 +25,8 @@ namespace quickcalc {
     };
 
     struct Token {
+        int column;
+        int line;
         TokenType type;
         std::variant<std::monostate, double, Symbol> data;
     };

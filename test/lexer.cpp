@@ -171,3 +171,65 @@ TEST(lexer, SemicolonEndsStatement) {
     // Cast to void to disable nodiscard warning
     ASSERT_NO_THROW(static_cast<void>(std::get<std::monostate>(tok.data)));
 }
+
+TEST(lexer, ReadSymbolEmbedded) {
+    auto stream = std::istringstream("1+2");
+    Lexer lexer(stream);
+
+    Token tok = lexer.read();
+    EXPECT_EQ(tok.type, TokenType::NUMBER);
+    double val;
+    ASSERT_NO_THROW(val = std::get<double>(tok.data));
+    EXPECT_DOUBLE_EQ(val, 1.0);
+
+    tok = lexer.read();
+    EXPECT_EQ(tok.type, TokenType::SYMBOL);
+    Symbol sym;
+    ASSERT_NO_THROW(sym = std::get<Symbol>(tok.data));
+    EXPECT_EQ(sym, Symbol::ADD);
+
+    tok = lexer.read();
+    EXPECT_EQ(tok.type, TokenType::NUMBER);
+    ASSERT_NO_THROW(val = std::get<double>(tok.data));
+    EXPECT_DOUBLE_EQ(val, 2.0);
+}
+
+TEST(lexer, ReportsColumn) {
+    auto stream = std::istringstream("+-");
+    Lexer lexer(stream);
+    Token tok = lexer.read();
+    EXPECT_EQ(tok.line, 1);
+    EXPECT_EQ(tok.column, 1);
+
+    tok = lexer.read();
+    EXPECT_EQ(tok.line, 1);
+    EXPECT_EQ(tok.column, 2);
+}
+
+TEST(lexer, ReportsLine) {
+    auto stream = std::istringstream("+-\n+");
+    Lexer lexer(stream);
+    Token tok = lexer.read();
+    EXPECT_EQ(tok.line, 1);
+    EXPECT_EQ(tok.column, 1);
+
+    tok = lexer.read();
+    EXPECT_EQ(tok.line, 1);
+    EXPECT_EQ(tok.column, 2);
+    
+    tok = lexer.read();
+    EXPECT_EQ(tok.line, 2);
+    EXPECT_EQ(tok.column, 1);
+}
+
+TEST(lexer, DoesntProgressAfterEOS) {
+    auto stream = std::istringstream("");
+    Lexer lexer(stream);
+    Token tok = lexer.read();
+    EXPECT_EQ(tok.line, 1);
+    EXPECT_EQ(tok.column, 1);
+
+    tok = lexer.read();
+    EXPECT_EQ(tok.line, 1);
+    EXPECT_EQ(tok.column, 1);
+}
