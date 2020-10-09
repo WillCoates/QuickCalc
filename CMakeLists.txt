@@ -3,6 +3,7 @@ project(quickcalc VERSION 0.1 LANGUAGES CXX)
 
 add_library(libquickcalc STATIC
     src/lexer.cpp include/lexer.hpp
+    src/ast.cpp include/ast.hpp
 )
 
 target_compile_features(libquickcalc PUBLIC cxx_std_17)
