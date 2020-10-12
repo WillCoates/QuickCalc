@@ -22,15 +22,24 @@ namespace {
     };
 
     constexpr int SYMBOL_COUNT = sizeof(SYMBOLS) / sizeof(char);
+    
+    // If modifying check Symbol enum in lexer.hpp
+    const char *KEYWORDS[] = {
+        "let",
+    };
+
+    constexpr int KEYWORD_COUNT = sizeof(KEYWORDS) / sizeof(char*);
 
     // If modifying check TokenType enum in lexer.hpp
     const char *TOKEN_TYPES[] = {
         "End of statement",
         "Symbol",
         "Number",
+        "Name",
+        "Keyword",
     };
 
-    constexpr int TOKEN_TYPE_COUNT = sizeof(TOKEN_TYPES) / sizeof(char);
+    constexpr int TOKEN_TYPE_COUNT = sizeof(TOKEN_TYPES) / sizeof(char*);
 }
 
 ILexer::~ILexer() {
@@ -97,14 +106,33 @@ Token Lexer::readToken() {
             numBuffer[offset++] = digestChar();
             c = getChar();
         }
+        numBuffer[numBuffer.size() - 1] = 0; // Stop buffer overrun
         double value = strtod(numBuffer.data(), nullptr);
         return { startCol, startLine, TokenType::NUMBER, value };
     } else {
+        // Symbol
         for (int i = 0; i < SYMBOL_COUNT; i++) {
             if (c == SYMBOLS[i]) {
                 digestChar();
                 return { startCol, startLine, TokenType::SYMBOL, static_cast<Symbol>(i) };
             }
+        }
+        // Keyword or name
+        if (isalpha(c)) {
+            std::array<char, 128> nameBuffer = {};
+            int offset = 0;
+            while (isalnum(c) || c == '_') {
+                nameBuffer[offset++] = digestChar();
+                c = getChar();
+            }
+            nameBuffer[nameBuffer.size() - 1] = 0;
+            // Check if keyword
+            for (int i = 0; i < KEYWORD_COUNT; i++) {
+                if (strncmp(nameBuffer.data(), KEYWORDS[i], nameBuffer.size()) == 0) {
+                    return { startCol, startLine, TokenType::KEYWORD, static_cast<Keyword>(i) };
+                }
+            }
+            return { startCol, startLine, TokenType::NAME, std::string(nameBuffer.data()) };
         }
         throw std::runtime_error(generateError("Bad character", c));
     }

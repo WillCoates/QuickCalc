@@ -19,18 +19,25 @@ namespace quickcalc {
         BRACKET_CLOSE,
     };
 
+    // If modifying check KEYWORDS in lexer.cpp
+    enum class Keyword: int {
+        LET,
+    };
+
     // If modifying check TOKEN_TYPES in lexer.cpp
     enum class TokenType: int {
         END_OF_STMT = 0,
         SYMBOL,
         NUMBER,
+        NAME,
+        KEYWORD,
     };
 
     struct Token {
         int column;
         int line;
         TokenType type;
-        std::variant<std::monostate, double, Symbol> data;
+        std::variant<std::monostate, double, Symbol, Keyword, std::string> data;
     };
 
     struct ILexer {

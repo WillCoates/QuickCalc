@@ -233,3 +233,21 @@ TEST(lexer, DoesntProgressAfterEOS) {
     EXPECT_EQ(tok.line, 1);
     EXPECT_EQ(tok.column, 1);
 }
+
+TEST(lexer, ReadName) {
+    auto stream = std::istringstream("f00_bar");
+    Lexer lexer(stream);
+    Token tok = lexer.read();
+    EXPECT_EQ(tok.type, TokenType::NAME);
+    ASSERT_NO_THROW(static_cast<void>(std::get<std::string>(tok.data)));
+    EXPECT_EQ(std::get<std::string>(tok.data), "f00_bar");
+}
+
+TEST(lexer, ReadKeywordLet) {
+    auto stream = std::istringstream("let");
+    Lexer lexer(stream);
+    Token tok = lexer.read();
+    EXPECT_EQ(tok.type, TokenType::KEYWORD);
+    ASSERT_NO_THROW(static_cast<void>(std::get<Keyword>(tok.data)));
+    EXPECT_EQ(std::get<Keyword>(tok.data), Keyword::LET);
+}
