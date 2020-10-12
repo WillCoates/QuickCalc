@@ -26,6 +26,7 @@ if(${GTEST_FOUND})
         test/lexer.cpp
         test/parser.cpp
         test/executor.cpp
+        test/executorstate.cpp
     )
     
     target_link_libraries(unittests PUBLIC libquickcalc GTest::GTest GTest::Main)

@@ -1,17 +1,19 @@
 #include "executor.hpp"
 #include <cstdint>
+#include <stdexcept>
 
 using namespace quickcalc;
 
 Executor::Executor(): NodeVisitor() {
+    pushState();
 }
 
 Executor::Executor(NodeVisitor *next): NodeVisitor(next) {
+    pushState();
 }
 
 void Executor::visit(ExprStmtNode *node) {
-    node->expression()->accept(*this);
-    _lastResult = pop();
+    _lastResult = evaluate(node->expression());
 }
 
 void Executor::visit(ConstNode *node) {
@@ -63,6 +65,11 @@ void Executor::visit(BinaryOperationNode *node) {
     push(result);
 }
 
+double Executor::evaluate(ExprNode *node) {
+    node->accept(*this);
+    return pop();
+}
+
 double Executor::lastResult() {
     return _lastResult;
 }
@@ -75,4 +82,64 @@ double Executor::pop() {
     double value = _valueStack.top();
     _valueStack.pop();
     return value;
+}
+
+ExecutorState &Executor::getState() {
+    return _stateStack.top();
+}
+
+ExecutorState &Executor::pushState() {
+    if (_stateStack.empty()) {
+        return _stateStack.emplace();
+    } else {
+        return _stateStack.emplace(&_stateStack.top());
+    }
+}
+
+void Executor::popState() {
+    _stateStack.pop();
+}
+
+ExecutorState::ExecutorState(): ExecutorState(nullptr) {
+}
+
+ExecutorState::ExecutorState(ExecutorState *parent): _parent(parent) {
+}
+
+void ExecutorState::setFunction(const std::string &name, const Func &function) {
+    _funcMap[name] = function;
+}
+
+void ExecutorState::setFunction(const std::string &name, Func &&function) {
+    _funcMap[name] = std::move(function);
+}
+
+void ExecutorState::setFunction(std::string &&name, Func &&function) {
+    _funcMap[std::move(name)] = std::move(function);
+}
+
+const ExecutorState::Func &ExecutorState::getFunction(const std::string &name) const {
+    const Func *func;
+    if (tryGetFunction(name, func)) {
+        return *func;
+    } else {
+        throw std::logic_error("Couldn't find function " + name);
+    }
+}
+
+bool ExecutorState::hasFunction(const std::string &name) const {
+    const Func *func;
+    return tryGetFunction(name, func);
+}
+
+bool ExecutorState::tryGetFunction(const std::string &name, const Func *&function) const {
+    auto it = _funcMap.find(name);
+    if (it != _funcMap.end()) {
+        function = &it->second;
+        return true;
+    } else if (_parent) {
+        return _parent->tryGetFunction(name, function);
+    } else {
+        return false;
+    }
 }
