@@ -14,6 +14,23 @@ Executor::Executor(NodeVisitor *next): NodeVisitor(next) {
 
 void Executor::visit(ExprStmtNode *node) {
     _lastResult = evaluate(node->expression());
+    _hasResult = true;
+}
+
+void Executor::visit(FuncDefNode *node) {
+    getState().setFunction(node->name(), [node] (Executor &exec, const std::vector<ExprNode::ptr> &params) {
+        ExecutorState &newState = exec.pushState();
+        for (int i = 0; i < params.size() && i < node->paramNames().size(); i++) {
+            const ExprNode::ptr &ast = params[i];
+            newState.setFunction(node->paramNames()[i], [&ast] (Executor &exec, const std::vector<ExprNode::ptr> &) {
+                return exec.evaluate(ast.get());
+            });
+        }
+        double result = exec.evaluate(node->expression());
+        exec.popState();
+        return result;
+    });
+    _hasResult = false;
 }
 
 void Executor::visit(ConstNode *node) {
@@ -65,13 +82,26 @@ void Executor::visit(BinaryOperationNode *node) {
     push(result);
 }
 
+void Executor::visit(FunctionInvocationNode *node) {
+    const ExecutorState::Func *func;
+    if (getState().tryGetFunction(node->name(), func)) {
+        push((*func)(*this, node->params()));
+    } else {
+        throw std::runtime_error("Undefined function " + node->name());
+    }
+}
+
 double Executor::evaluate(ExprNode *node) {
     node->accept(*this);
     return pop();
 }
 
-double Executor::lastResult() {
+double Executor::lastResult() const {
     return _lastResult;
+}
+
+bool Executor::hasResult() const {
+    return _hasResult;
 }
 
 void Executor::push(double value) {

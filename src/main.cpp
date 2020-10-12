@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <vector>
 #include "lexer.hpp"
 #include "parser.hpp"
 #include "executor.hpp"
@@ -22,11 +23,20 @@ int main(int argc, char *argv[]) {
     Parser parser = Parser(lex);
     Executor executor;
 
+    std::vector<StmtNode::ptr> vitalNodes;
+
     while (!input->eof()) {
         try {
             auto ast = parser.parse();
-            ast->accept(executor);
-            std::cout << "Result = " << executor.lastResult() << std::endl;
+            // Ensure vital nodes are kept in memory
+            auto &astRef = ast->canSafeDelete() ? ast : vitalNodes.emplace_back(std::move(ast));
+
+            astRef->accept(executor);
+            if (executor.hasResult()) {
+                std::cout << "Result = " << executor.lastResult() << std::endl;
+            } else {
+                std::cout << "OK" << std::endl;
+            }
         } catch (std::runtime_error &e) {
             std::cout << "Exception: " << e.what() << std::endl;
             return 1;

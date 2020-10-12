@@ -6,6 +6,10 @@ bool Node::operator!=(const Node &other) const {
     return !(*this == other);
 }
 
+bool Node::canSafeDelete() const {
+    return true;
+}
+
 ExprStmtNode::ExprStmtNode(ExprNode::ptr &&expression): _expression(std::move(expression)) {
 }
 
@@ -54,6 +58,11 @@ bool FuncDefNode::operator==(const Node &other) const {
            && _paramNames == otherStmt._paramNames
            && *_expression == *otherStmt._expression;
 }
+
+bool FuncDefNode::canSafeDelete() const {
+    return false;
+}
+
 
 ConstNode::ConstNode(double value): _value(value) {
 }

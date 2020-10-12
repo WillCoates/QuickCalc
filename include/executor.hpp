@@ -12,7 +12,7 @@ namespace quickcalc {
 
     class ExecutorState {
     public:
-        using Func = std::function<double(Executor &executor, const std::vector<ExprNode> &)>;
+        using Func = std::function<double(Executor &executor, const std::vector<ExprNode::ptr> &)>;
     private:
         std::unordered_map<std::string, Func> _funcMap;
         const ExecutorState *_parent;
@@ -33,18 +33,22 @@ namespace quickcalc {
         std::stack<double> _valueStack;
         std::stack<ExecutorState> _stateStack;
         double _lastResult;
+        bool _hasResult;
     public:
         Executor();
         Executor(NodeVisitor *next);
 
         void visit(ExprStmtNode *node) override;
+        void visit(FuncDefNode *node) override;
         void visit(ConstNode *node) override;
         void visit(UnaryOperationNode *node) override;
         void visit(BinaryOperationNode *node) override;
+        void visit(FunctionInvocationNode *node) override;
 
         double evaluate(ExprNode *node);
 
-        double lastResult();
+        double lastResult() const;
+        bool hasResult() const;
     
         void push(double value);
         double pop();

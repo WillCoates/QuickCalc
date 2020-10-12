@@ -12,6 +12,7 @@ namespace quickcalc {
         virtual void accept(NodeVisitor &visitor) = 0;
         virtual bool operator==(const Node &other) const = 0;
         bool operator!=(const Node &other) const;
+        virtual bool canSafeDelete() const;
     };
 
     class StmtNode: public Node {
@@ -46,6 +47,7 @@ namespace quickcalc {
 
         void accept(NodeVisitor &visitor) override;
         bool operator==(const Node &other) const override;
+        bool canSafeDelete() const override;
     };
 
     class ConstNode: public ExprNode {

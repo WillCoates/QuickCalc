@@ -1,13 +1,19 @@
 #include <gtest/gtest.h>
+#include <optional>
 #include "executor.hpp"
 
 using namespace quickcalc;
 
 namespace {
-    void testExecutor(StmtNode *stmt, double expected) {
+    void testExecutor(StmtNode *stmt, std::optional<double> expected) {
         Executor executor;
         stmt->accept(executor);
-        EXPECT_DOUBLE_EQ(executor.lastResult(), expected);
+        if (expected.has_value()) {
+            EXPECT_TRUE(executor.hasResult());
+            EXPECT_DOUBLE_EQ(executor.lastResult(), *expected);
+        } else {
+            EXPECT_FALSE(executor.hasResult());
+        }
     }
 }
 
@@ -113,4 +119,69 @@ TEST(executor, XorXors) {
         )
     );
     testExecutor(stmt.get(), 2.0);
+}
+
+TEST(executor, CanDefineFunction) {
+    auto stmt = std::make_unique<FuncDefNode>(
+        "foo",
+        std::make_unique<ConstNode>(1.0),
+        std::vector<std::string>()
+    );
+    Executor executor;
+    stmt->accept(executor);
+    EXPECT_FALSE(executor.hasResult());
+
+    const ExecutorState::Func *func = nullptr;
+    EXPECT_TRUE(executor.getState().tryGetFunction("foo", func));
+    EXPECT_NE(func, nullptr);
+}
+
+TEST(executor, CanInvokeFunction) {
+    auto stmt1 = std::make_unique<FuncDefNode>(
+        "foo",
+        std::make_unique<ConstNode>(1.0),
+        std::vector<std::string>()
+    );
+    auto stmt2 = std::make_unique<ExprStmtNode>(
+            std::make_unique<FunctionInvocationNode>(
+            "foo",
+            std::vector<ExprNode::ptr>()
+        )
+    );
+    Executor executor;
+    stmt1->accept(executor);
+    EXPECT_FALSE(executor.hasResult());
+
+    stmt2->accept(executor);
+    EXPECT_TRUE(executor.hasResult());
+    EXPECT_DOUBLE_EQ(executor.lastResult(), 1.0);
+}
+
+TEST(executor, CanInvokeFunctionWithParam) {
+    auto stmt1 = std::make_unique<FuncDefNode>(
+        "foo",
+        std::make_unique<BinaryOperationNode>(
+            BinaryOperation::ADD,
+            std::make_unique<ConstNode>(1.0),
+            std::make_unique<FunctionInvocationNode>("a", std::vector<ExprNode::ptr>())
+        ),
+        std::vector<std::string>({ "a" })
+    );
+    
+    std::vector<ExprNode::ptr> params;
+    params.push_back(std::make_unique<ConstNode>(2.0));
+
+    auto stmt2 = std::make_unique<ExprStmtNode>(
+            std::make_unique<FunctionInvocationNode>(
+            "foo",
+            std::move(params)
+        )
+    );
+    Executor executor;
+    stmt1->accept(executor);
+    EXPECT_FALSE(executor.hasResult());
+
+    stmt2->accept(executor);
+    EXPECT_TRUE(executor.hasResult());
+    EXPECT_DOUBLE_EQ(executor.lastResult(), 3.0);
 }
