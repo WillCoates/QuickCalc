@@ -19,6 +19,8 @@ namespace {
         '~',
         '(',
         ')',
+        '=',
+        ',',
     };
 
     constexpr int SYMBOL_COUNT = sizeof(SYMBOLS) / sizeof(char);

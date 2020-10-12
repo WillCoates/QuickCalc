@@ -1,5 +1,7 @@
 #pragma once
 #include <memory>
+#include <vector>
+#include <string>
 
 namespace quickcalc {
     class Node;
@@ -9,6 +11,7 @@ namespace quickcalc {
     public:
         virtual void accept(NodeVisitor &visitor) = 0;
         virtual bool operator==(const Node &other) const = 0;
+        bool operator!=(const Node &other) const;
     };
 
     class StmtNode: public Node {
@@ -26,6 +29,20 @@ namespace quickcalc {
     public:
         ExprStmtNode(ExprNode::ptr &&expression);
         ExprNode *expression() const;
+
+        void accept(NodeVisitor &visitor) override;
+        bool operator==(const Node &other) const override;
+    };
+
+    class FuncDefNode: public StmtNode {
+        std::string _name;
+        ExprNode::ptr _expression;
+        std::vector<std::string> _paramNames;
+    public:
+        FuncDefNode(const std::string &name, ExprNode::ptr &&expression, std::vector<std::string> &&paramNames);
+        const std::string &name() const;
+        ExprNode *expression() const;
+        const std::vector<std::string> &paramNames() const;
 
         void accept(NodeVisitor &visitor) override;
         bool operator==(const Node &other) const override;
@@ -81,14 +98,28 @@ namespace quickcalc {
         bool operator==(const Node &other) const override;
     };
 
+    class FunctionInvocationNode: public ExprNode {
+        std::string _name;
+        std::vector<std::unique_ptr<ExprNode>> _params;
+    public:
+        FunctionInvocationNode(const std::string &name, std::vector<std::unique_ptr<ExprNode>> &&params);
+        const std::string &name() const;
+        const std::vector<std::unique_ptr<ExprNode>> &params() const;
+
+        void accept(NodeVisitor &visitor) override;
+        bool operator==(const Node &other) const override;
+    };
+
     class NodeVisitor {
         NodeVisitor *_next;
     public:
         virtual ~NodeVisitor() = default;
         virtual void visit(ExprStmtNode *node);
+        virtual void visit(FuncDefNode *node);
         virtual void visit(ConstNode *node);
         virtual void visit(UnaryOperationNode *node);
         virtual void visit(BinaryOperationNode *node);
+        virtual void visit(FunctionInvocationNode *node);
     protected:
         NodeVisitor();
         NodeVisitor(NodeVisitor *next);

@@ -17,11 +17,13 @@ namespace quickcalc {
         NOT,
         BRACKET_OPEN,
         BRACKET_CLOSE,
+        EQUALS,
+        COMMA,
     };
 
     // If modifying check KEYWORDS in lexer.cpp
     enum class Keyword: int {
-        LET,
+        LET = 0,
     };
 
     // If modifying check TOKEN_TYPES in lexer.cpp

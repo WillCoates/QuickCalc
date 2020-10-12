@@ -1,6 +1,16 @@
+alpha = ? letters a to z in lower and upper case ;
 digit = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "0";
 
 number = digit, { digit }, [ ".", digit, {digit} ], [ "e", digit, {digit} ];
+
+name = alpha, { alpha | digit | "_" };
+
+stmt = exprstmt
+     | funcdefstmt;
+
+exprstmt = additive;
+
+funcdefstmt = "let", name, [ "(" name, { ",", name }, ")" ], "=", additive;
 
 additive = multiplicative
          | multiplicative, ('+' | '-'), additive;
@@ -9,5 +19,6 @@ multiplicative = expression
                | expression, ('*' | '/'), multiplicative;
 
 expression = number
+           | name, [ "(", additive, { ",", additive }, ")" ]
            | "(", additive, ")"
-           | [ "+" | "-" ], expression;
+           | [  "+" | "-" ], expression;

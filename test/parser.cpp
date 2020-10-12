@@ -289,3 +289,169 @@ TEST(parse, ParseMultiple) {
     testParser(lexer, expectedA);
     testParser(lexer, expectedB);
 }
+
+TEST(parser, ParseFunctionDefinitionNoArg) {
+    MockLexer lexer = MockLexer({
+        { 0, 0, TokenType::KEYWORD, Keyword::LET },
+        { 1, 0, TokenType::NAME, "foo" },
+        { 2, 0, TokenType::SYMBOL, Symbol::EQUALS },
+        { 3, 0, TokenType::NUMBER, 1.0 },
+        { 4, 0, TokenType::SYMBOL, Symbol::ADD },
+        { 5, 0, TokenType::NUMBER, 2.0 },
+    });
+    std::unique_ptr<StmtNode> expected =
+        std::make_unique<FuncDefNode>(
+            "foo",
+            std::make_unique<BinaryOperationNode>(
+                BinaryOperation::ADD,
+                std::make_unique<ConstNode>(1.0),
+                std::make_unique<ConstNode>(2.0)
+            ),
+            std::vector<std::string>()
+        );
+    testParser(lexer, expected);
+}
+
+TEST(parser, ParseFunctionDefinitionWithSingleArg) {
+    MockLexer lexer = MockLexer({
+        { 0, 0, TokenType::KEYWORD, Keyword::LET },
+        { 1, 0, TokenType::NAME, "foo" },
+        { 2, 0, TokenType::SYMBOL, Symbol::BRACKET_OPEN },
+        { 3, 0, TokenType::NAME, "a" },
+        { 4, 0, TokenType::SYMBOL, Symbol::BRACKET_CLOSE },
+        { 5, 0, TokenType::SYMBOL, Symbol::EQUALS },
+        { 6, 0, TokenType::NUMBER, 1.0 },
+        { 7, 0, TokenType::SYMBOL, Symbol::ADD },
+        { 8, 0, TokenType::NUMBER, 2.0 },
+    });
+    std::unique_ptr<StmtNode> expected =
+        std::make_unique<FuncDefNode>(
+            "foo",
+            std::make_unique<BinaryOperationNode>(
+                BinaryOperation::ADD,
+                std::make_unique<ConstNode>(1.0),
+                std::make_unique<ConstNode>(2.0)
+            ),
+            std::vector<std::string>({"a"})
+        );
+    testParser(lexer, expected);
+}
+
+TEST(parser, ParseFunctionDefinitionWithMultiArg) {
+    MockLexer lexer = MockLexer({
+        { 0, 0, TokenType::KEYWORD, Keyword::LET },
+        { 1, 0, TokenType::NAME, "foo" },
+        { 2, 0, TokenType::SYMBOL, Symbol::BRACKET_OPEN },
+        { 3, 0, TokenType::NAME, "a" },
+        { 4, 0, TokenType::SYMBOL, Symbol::COMMA },
+        { 5, 0, TokenType::NAME, "b" },
+        { 6, 0, TokenType::SYMBOL, Symbol::BRACKET_CLOSE },
+        { 7, 0, TokenType::SYMBOL, Symbol::EQUALS },
+        { 8, 0, TokenType::NUMBER, 1.0 },
+        { 9, 0, TokenType::SYMBOL, Symbol::ADD },
+        { 10, 0, TokenType::NUMBER, 2.0 },
+    });
+    std::unique_ptr<StmtNode> expected =
+        std::make_unique<FuncDefNode>(
+            "foo",
+            std::make_unique<BinaryOperationNode>(
+                BinaryOperation::ADD,
+                std::make_unique<ConstNode>(1.0),
+                std::make_unique<ConstNode>(2.0)
+            ),
+            std::vector<std::string>({"a", "b"})
+        );
+    testParser(lexer, expected);
+}
+
+TEST(parser, ParseInvokeNoArg) {
+    MockLexer lexer = MockLexer({
+        { 0, 0, TokenType::NAME, "foo" },
+        { 1, 0, TokenType::SYMBOL, Symbol::ADD },
+        { 2, 0, TokenType::NUMBER, 1.0 },
+    });
+    std::unique_ptr<StmtNode> expected =
+        std::make_unique<ExprStmtNode>(
+            std::make_unique<BinaryOperationNode>(
+                BinaryOperation::ADD,
+                std::make_unique<FunctionInvocationNode>("foo", std::vector<std::unique_ptr<ExprNode>>()),
+                std::make_unique<ConstNode>(1.0)
+            )
+        );
+    testParser(lexer, expected);
+}
+
+TEST(parser, ParseInvokeSingleArg) {
+    MockLexer lexer = MockLexer({
+        { 0, 0, TokenType::NAME, "foo" },
+        { 1, 0, TokenType::SYMBOL, Symbol::BRACKET_OPEN },
+        { 2, 0, TokenType::NUMBER, 1.0 },
+        { 3, 0, TokenType::SYMBOL, Symbol::BRACKET_CLOSE },
+        { 4, 0, TokenType::SYMBOL, Symbol::ADD },
+        { 5, 0, TokenType::NUMBER, 2.0 },
+    });
+    std::vector<std::unique_ptr<ExprNode>> params;
+    params.push_back(std::make_unique<ConstNode>(1.0));
+    std::unique_ptr<StmtNode> expected =
+        std::make_unique<ExprStmtNode>(
+            std::make_unique<BinaryOperationNode>(
+                BinaryOperation::ADD,
+                std::make_unique<FunctionInvocationNode>("foo", std::move(params)),
+                std::make_unique<ConstNode>(2.0)
+            )
+        );
+    testParser(lexer, expected);
+}
+
+TEST(parser, ParseInvokeMultiArg) {
+    MockLexer lexer = MockLexer({
+        { 0, 0, TokenType::NAME, "foo" },
+        { 1, 0, TokenType::SYMBOL, Symbol::BRACKET_OPEN },
+        { 2, 0, TokenType::NUMBER, 1.0 },
+        { 3, 0, TokenType::SYMBOL, Symbol::COMMA },
+        { 4, 0, TokenType::NUMBER, 2.0 },
+        { 5, 0, TokenType::SYMBOL, Symbol::BRACKET_CLOSE },
+        { 6, 0, TokenType::SYMBOL, Symbol::ADD },
+        { 7, 0, TokenType::NUMBER, 3.0 },
+    });
+    std::vector<std::unique_ptr<ExprNode>> params;
+    params.push_back(std::make_unique<ConstNode>(1.0));
+    params.push_back(std::make_unique<ConstNode>(2.0));
+    std::unique_ptr<StmtNode> expected =
+        std::make_unique<ExprStmtNode>(
+            std::make_unique<BinaryOperationNode>(
+                BinaryOperation::ADD,
+                std::make_unique<FunctionInvocationNode>("foo", std::move(params)),
+                std::make_unique<ConstNode>(3.0)
+            )
+        );
+    testParser(lexer, expected);
+}
+
+TEST(parser, ParseInvokeComplexArg) {
+    MockLexer lexer = MockLexer({
+        { 0, 0, TokenType::NAME, "foo" },
+        { 1, 0, TokenType::SYMBOL, Symbol::BRACKET_OPEN },
+        { 2, 0, TokenType::NUMBER, 1.0 },
+        { 3, 0, TokenType::SYMBOL, Symbol::ADD },
+        { 4, 0, TokenType::NUMBER, 2.0 },
+        { 5, 0, TokenType::SYMBOL, Symbol::BRACKET_CLOSE },
+        { 6, 0, TokenType::SYMBOL, Symbol::ADD },
+        { 7, 0, TokenType::NUMBER, 3.0 },
+    });
+    std::vector<std::unique_ptr<ExprNode>> params;
+    params.push_back(std::make_unique<BinaryOperationNode>(
+        BinaryOperation::ADD,
+        std::make_unique<ConstNode>(1.0),
+        std::make_unique<ConstNode>(2.0)
+    ));
+    std::unique_ptr<StmtNode> expected =
+        std::make_unique<ExprStmtNode>(
+            std::make_unique<BinaryOperationNode>(
+                BinaryOperation::ADD,
+                std::make_unique<FunctionInvocationNode>("foo", std::move(params)),
+                std::make_unique<ConstNode>(3.0)
+            )
+        );
+    testParser(lexer, expected);
+}

@@ -2,6 +2,10 @@
 
 using namespace quickcalc;
 
+bool Node::operator!=(const Node &other) const {
+    return !(*this == other);
+}
+
 ExprStmtNode::ExprStmtNode(ExprNode::ptr &&expression): _expression(std::move(expression)) {
 }
 
@@ -19,6 +23,36 @@ bool ExprStmtNode::operator==(const Node &other) const {
     }
     const ExprStmtNode &otherStmt = static_cast<const ExprStmtNode&>(other);
     return *_expression == *otherStmt._expression;
+}
+
+FuncDefNode::FuncDefNode(const std::string &name, ExprNode::ptr &&expression, std::vector<std::string> &&paramNames):
+    _name(name), _expression(std::move(expression)), _paramNames(std::move(paramNames)) {
+}
+
+const std::string &FuncDefNode::name() const {
+    return _name;
+}
+
+ExprNode *FuncDefNode::expression() const {
+    return _expression.get();
+}
+
+const std::vector<std::string> &FuncDefNode::paramNames() const {
+    return _paramNames;
+}
+
+void FuncDefNode::accept(NodeVisitor &visitor) {
+    visitor.visit(this);
+}
+
+bool FuncDefNode::operator==(const Node &other) const {
+    if (typeid(*this) != typeid(other)) {
+        return false;
+    }
+    const FuncDefNode &otherStmt = static_cast<const FuncDefNode&>(other);
+    return _name == otherStmt._name
+           && _paramNames == otherStmt._paramNames
+           && *_expression == *otherStmt._expression;
 }
 
 ConstNode::ConstNode(double value): _value(value) {
@@ -93,6 +127,38 @@ bool BinaryOperationNode::operator==(const Node &other) const {
            && *_rhs == *otherExpr._rhs;
 }
 
+FunctionInvocationNode::FunctionInvocationNode(const std::string &name, std::vector<std::unique_ptr<ExprNode>> &&params):
+    _name(name), _params(std::move(params)) {
+}
+
+const std::string &FunctionInvocationNode::name() const {
+    return _name;
+}
+
+const std::vector<std::unique_ptr<ExprNode>> &FunctionInvocationNode::params() const {
+    return _params;
+}
+
+void FunctionInvocationNode::accept(NodeVisitor &visitor) {
+    visitor.visit(this);
+}
+
+bool FunctionInvocationNode::operator==(const Node &other) const {
+    if (typeid(*this) != typeid(other)) {
+        return false;
+    }
+    const FunctionInvocationNode &otherExpr = static_cast<const FunctionInvocationNode&>(other);
+    if (_name != otherExpr._name || _params.size() != otherExpr._params.size()) {
+        return false;
+    }
+    for (int i = 0; i < _params.size(); i++ ) {
+        if (*_params[i] != *otherExpr._params[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 NodeVisitor::NodeVisitor(): _next(nullptr) {
 }
 
@@ -100,6 +166,12 @@ NodeVisitor::NodeVisitor(NodeVisitor *next): _next(next){
 }
 
 void NodeVisitor::visit(ExprStmtNode *node) {
+    if (_next) {
+        _next->visit(node);
+    }
+}
+
+void NodeVisitor::visit(FuncDefNode *node) {
     if (_next) {
         _next->visit(node);
     }
@@ -118,6 +190,12 @@ void NodeVisitor::visit(UnaryOperationNode *node) {
 }
 
 void NodeVisitor::visit(BinaryOperationNode *node) {
+    if (_next) {
+        _next->visit(node);
+    }
+}
+
+void NodeVisitor::visit(FunctionInvocationNode *node) {
     if (_next) {
         _next->visit(node);
     }
