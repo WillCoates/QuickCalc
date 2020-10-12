@@ -67,3 +67,4 @@ namespace quickcalc {
 
 std::ostream &operator<<(std::ostream &stream, quickcalc::Symbol symbol);
 std::ostream &operator<<(std::ostream &stream, quickcalc::TokenType type);
+std::ostream &operator<<(std::ostream &stream, quickcalc::Keyword keyword);

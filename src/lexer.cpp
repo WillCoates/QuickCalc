@@ -179,3 +179,13 @@ std::ostream &operator<<(std::ostream &stream, TokenType type) {
 
     return stream << TOKEN_TYPES[offset];
 }
+
+std::ostream &operator<<(std::ostream &stream, quickcalc::Keyword keyword) {
+    int offset = static_cast<int>(keyword);
+
+    if (offset < 0 || offset >= KEYWORD_COUNT) {
+        return stream << "Bad keyword";
+    }
+
+    return stream << KEYWORDS[offset];
+}
