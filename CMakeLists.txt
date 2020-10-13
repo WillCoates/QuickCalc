@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(quickcalc VERSION 0.1 LANGUAGES CXX)
+project(quickcalc VERSION 1.0 LANGUAGES CXX)
 
 add_library(libquickcalc STATIC
     src/lexer.cpp include/lexer.hpp
