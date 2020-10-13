@@ -98,3 +98,21 @@ TEST_F(IntegrationTest, ExecuteFunction) {
     EXPECT_TRUE(executor.hasResult());
     EXPECT_DOUBLE_EQ(executor.lastResult(), 1.0);
 }
+
+TEST_F(IntegrationTest, RecursiveFunction) {
+    input.str("let a(x) = x; let b(x) = a(x); b(5)");
+    for (int i = 0; i < 2; i++)
+    {
+        auto ast = parser.parse();
+        auto &astRef = storeVital(std::move(ast));
+        astRef->accept(executor);
+        EXPECT_FALSE(executor.hasResult());
+    }
+    auto ast = parser.parse();
+    {
+        auto &astRef = storeVital(std::move(ast));
+        astRef->accept(executor);
+    }
+    EXPECT_TRUE(executor.hasResult());
+    EXPECT_DOUBLE_EQ(executor.lastResult(), 5.0);
+}

@@ -28,3 +28,14 @@ TEST(executorstate, CanRetreiveFunctionFromParent) {
     EXPECT_TRUE(child.hasFunction("foo"));
     EXPECT_NE(func, nullptr);
 }
+
+TEST(executorstate, CanOverrideFunctionFromParent) {
+    ExecutorState parent = ExecutorState();
+    ExecutorState child = ExecutorState(&parent);
+    const ExecutorState::Func *funcA, *funcB;
+    parent.setFunction("foo", [] (auto&, const auto&) { return 0.0; });
+    child.setFunction("foo", [] (auto&, const auto&) { return 1.0; });
+    EXPECT_TRUE(child.tryGetFunction("foo", funcA));
+    EXPECT_TRUE(parent.tryGetFunction("foo", funcB));
+    EXPECT_NE(funcA, funcB);
+}

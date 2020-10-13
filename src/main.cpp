@@ -5,23 +5,27 @@
 #include "lexer.hpp"
 #include "parser.hpp"
 #include "executor.hpp"
+#include "concepts.hpp"
 
 using namespace quickcalc;
 
 int main(int argc, char *argv[]) {
     std::cout << "QuickCalc" << std::endl;
-    std::stringstream argInput;
+    std::unique_ptr<std::stringstream> argInput;
     std::istream *input = &std::cin;
     if (argc > 1) {
+        argInput = std::make_unique<std::stringstream>();
         for (int i = 1; i < argc; i++) {
-            argInput << argv[i] << " ";
+            *argInput << argv[i] << " ";
         }
-        input = &argInput;
+        input = argInput.get();
     }
     
-    Lexer lex = Lexer(*input);
-    Parser parser = Parser(lex);
-    Executor executor;
+    auto lex = std::make_unique<Lexer>(*input);
+    Parser parser = Parser(*lex);
+    auto executor = std::make_unique<Executor>();
+
+    loadConcepts(executor->getState());
 
     std::vector<StmtNode::ptr> vitalNodes;
 
@@ -31,9 +35,9 @@ int main(int argc, char *argv[]) {
             // Ensure vital nodes are kept in memory
             auto &astRef = ast->canSafeDelete() ? ast : vitalNodes.emplace_back(std::move(ast));
 
-            astRef->accept(executor);
-            if (executor.hasResult()) {
-                std::cout << "Result = " << executor.lastResult() << std::endl;
+            astRef->accept(*executor);
+            if (executor->hasResult()) {
+                std::cout << "Result = " << executor->lastResult() << std::endl;
             } else {
                 std::cout << "OK" << std::endl;
             }

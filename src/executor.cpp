@@ -23,7 +23,10 @@ void Executor::visit(FuncDefNode *node) {
         for (int i = 0; i < params.size() && i < node->paramNames().size(); i++) {
             const ExprNode::ptr &ast = params[i];
             newState.setFunction(node->paramNames()[i], [&ast] (Executor &exec, const std::vector<ExprNode::ptr> &) {
-                return exec.evaluate(ast.get());
+                ExecutorState prevState = exec.popState();
+                double val = exec.evaluate(ast.get());
+                exec.pushState(std::move(prevState));
+                return val;
             });
         }
         double result = exec.evaluate(node->expression());
@@ -126,8 +129,23 @@ ExecutorState &Executor::pushState() {
     }
 }
 
-void Executor::popState() {
+ExecutorState &Executor::pushState(const ExecutorState &state) {
+    ExecutorState *parent = _stateStack.empty() ? nullptr :&_stateStack.top();     
+
+    ExecutorState &newstate = _stateStack.emplace(state);
+    newstate._parent = parent;
+    return newstate;
+}
+
+ExecutorState &Executor::pushState(ExecutorState &&state) {
+    state._parent = _stateStack.empty() ? nullptr :&_stateStack.top();     
+    return _stateStack.emplace(std::move(state));
+}
+
+ExecutorState Executor::popState() {
+    ExecutorState state = std::move(_stateStack.top());
     _stateStack.pop();
+    return state;
 }
 
 ExecutorState::ExecutorState(): ExecutorState(nullptr) {

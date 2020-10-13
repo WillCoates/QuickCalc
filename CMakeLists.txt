@@ -6,6 +6,7 @@ add_library(libquickcalc STATIC
     src/ast.cpp include/ast.hpp
     src/parser.cpp include/parser.hpp
     src/executor.cpp include/executor.hpp
+    src/concepts.cpp include/concepts.hpp
 )
 
 target_compile_features(libquickcalc PUBLIC cxx_std_17)

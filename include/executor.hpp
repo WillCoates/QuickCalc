@@ -11,6 +11,7 @@ namespace quickcalc {
     class ExecutorState;
 
     class ExecutorState {
+        friend class Executor;
     public:
         using Func = std::function<double(Executor &executor, const std::vector<ExprNode::ptr> &)>;
     private:
@@ -55,6 +56,8 @@ namespace quickcalc {
 
         ExecutorState &getState();
         ExecutorState &pushState();
-        void popState();
+        ExecutorState &pushState(ExecutorState &&state);
+        ExecutorState &pushState(const ExecutorState &state);
+        ExecutorState popState();
     };
 }
